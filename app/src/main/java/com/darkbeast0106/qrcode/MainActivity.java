@@ -41,16 +41,20 @@ public class MainActivity extends AppCompatActivity {
             }
             MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
             try {
+                //A szövegből QR_CODE bitmátrix készítése
                 BitMatrix bitMatrix = multiFormatWriter.encode(text,
                         BarcodeFormat.QR_CODE, 500,500);
                 BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                //A bitmátrixból kép készítése amit meg tudunk jeleníteni.
                 Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+
                 imageResult.setImageBitmap(bitmap);
             } catch (WriterException e) {
                 e.printStackTrace();
             }
         });
         btnScan.setOnClickListener(v -> {
+            // Kamera megnyitása QR_CODE lekéréséhez. A beolvasás után visszatérve az alkalmazáshoz.
             IntentIntegrator intentIntegrator = new IntentIntegrator(MainActivity.this);
             intentIntegrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE);
             intentIntegrator.setPrompt("QR CODE SCAN");
@@ -61,16 +65,21 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // Akkor hívódik meg ha az Activityből megnyitott másik activity bezáródáskor adatot küld vissza
+    // ennek az Activitynek
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        //Megvizsgáljuk, hogy IntentIntegrator által készített hívás volt-e.
         IntentResult result =
                 IntentIntegrator.parseActivityResult(requestCode,resultCode,data);
         if (result != null) {
+            // Ha Intentintegratoros hívás volt, megnézzük, hogy küldött-e vissza adatot.
             if (result.getContents() == null) {
                 Toast.makeText(this, "Kiléptél a scanből", Toast.LENGTH_SHORT).show();
             } else {
                 textResult.setText(result.getContents());
 
+                //Ha a beolvasott QR_CODE egy url-t tartalmaz akkor megpróbál rálépni az url-re.
                 try {
                     Uri url = Uri.parse(result.getContents());
                     Intent intent = new Intent(Intent.ACTION_VIEW, url);
